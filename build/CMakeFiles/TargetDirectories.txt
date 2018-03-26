@@ -1,3 +1,0 @@
-/home/andreamnt94/Project/UniformRandomSampling/build/CMakeFiles/rebuild_cache.dir
-/home/andreamnt94/Project/UniformRandomSampling/build/CMakeFiles/UniformRandomSampling.dir
-/home/andreamnt94/Project/UniformRandomSampling/build/CMakeFiles/edit_cache.dir
