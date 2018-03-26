@@ -1,0 +1,5 @@
+-I"/usr/include/paraview-5.4"
+-I"/usr/include"
+-I"/usr/include/python3.6m"
+-I"/usr/include/libxml2"
+-I"/usr/include/freetype2"

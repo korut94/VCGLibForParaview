@@ -1,0 +1,24 @@
+<xml>
+    <proxy>
+        <group>filters</group>
+        <name>UniformRandomSamplingFilter</name>
+        <label>Uniform Random Sampling</label>
+        <documentation>
+            <brief/>
+            <long/>
+        </documentation>
+        <property>
+            <name>Input</name>
+            <label>Input</label>
+            <defaults/>
+            <domains>
+                <domain>
+                    <text>Accepts input of following types:</text>
+                    <list>
+                        <item>vtkPointSet</item>
+                    </list>
+                </domain>
+            </domains>
+        </property>
+    </proxy>
+</xml>

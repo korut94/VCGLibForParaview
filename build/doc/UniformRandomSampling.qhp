@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QtHelpProject version="1.0">
+    <namespace>UniformRandomSampling.org</namespace>
+    <virtualFolder>UniformRandomSampling</virtualFolder>
+    <filterSection>
+        <toc> <section title="UniformRandomSampling" ref="filters.UniformRandomSamplingFilter.html" >
+     <section title="Uniform Random Sampling" ref="filters.UniformRandomSamplingFilter.html" />
+ </section> </toc>
+        <keywords>
+          <!-- how to handle keywords? -->
+        </keywords>
+        <files>
+          <file>filters.UniformRandomSamplingFilter.html</file>
+
+        </files>
+    </filterSection>
+</QtHelpProject>
