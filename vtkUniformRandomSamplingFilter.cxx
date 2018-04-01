@@ -3,11 +3,12 @@
 #include "vtkUniformRandomSamplingFilter.h"
 
 #include "vtkCellIterator.h"
+#include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutputWindow.h"
-#include "vtkPolyData.h"
+#include "vtkPoints.h"
 
 #include "vcg/complex/complex.h"
 
@@ -29,16 +30,16 @@ int vtkUniformRandomSamplingFilter::RequestData(vtkInformation *request,
   vtkOutputWindow *outputWindow = vtkOutputWindow::GetInstance();
 
   vtkInformation *input = inputVector[0]->GetInformationObject(0);
-  vtkPolyData *polyData = vtkPolyData::SafeDownCast(input->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *data = vtkDataSet::SafeDownCast(input->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkCellIterator *itr = polyData->NewCellIterator();
+  vtkCellIterator *itr = data->NewCellIterator();
   double pointBuffer[3];
   uint InFaceIdPointBuffer[3];
   std::vector<vcg::Point3f> coordinateVector;
   std::vector<vcg::Point3i> indexVector;
 
   outputWindow->DisplayText("Number of faces: ");
-  outputWindow->DisplayText(std::to_string(itr->GetNumberOfFaces()).c_str());
+  outputWindow->DisplayText(std::to_string(data->GetNumberOfCells()).c_str());
   outputWindow->DisplayText("\n");
 
   for (itr->InitTraversal(); !itr->IsDoneWithTraversal(); itr->GoToNextCell()) {
