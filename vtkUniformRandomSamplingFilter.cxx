@@ -3,22 +3,124 @@
 #include "vtkUniformRandomSamplingFilter.h"
 
 #include "vtkCellIterator.h"
-#include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutputWindow.h"
 #include "vtkPoints.h"
+#include "vtkPointSet.h"
 
-#include "vcg/complex/complex.h"
+#include "vcg/complex/algorithms/create/platonic.h"
+#include "vcg/complex/algorithms/point_sampling.h"
 
-#include <assert.h>
+#include <algorithm>
+
+class VCGEdge;
+class VCGFace;
+class VCGVertex;
+
+struct VCGUsedTypes : public vcg::UsedTypes<
+  vcg::Use<VCGVertex>::AsVertexType,
+  vcg::Use<VCGEdge>::AsEdgeType,
+  vcg::Use<VCGFace>::AsFaceType> {};
+
+class VCGVertex : public vcg::Vertex<
+  VCGUsedTypes,
+  vcg::vertex::Coord3f,
+  vcg::vertex::Normal3f,
+  vcg::vertex::Color4b,
+  vcg::vertex::BitFlags> {};
+
+class VCGFace : public vcg::Face<
+  VCGUsedTypes,
+  vcg::face::VertexRef,
+  vcg::face::Normal3f,
+  vcg::face::FFAdj,
+  vcg::face::BitFlags> {};
+
+class VCGEdge : public vcg::Edge<VCGUsedTypes> {};
+
+class VCGMesh : public vcg::tri::TriMesh<
+  std::vector<VCGVertex>,
+  std::vector<VCGFace>,
+  std::vector<VCGEdge>> {};
 
 vtkStandardNewMacro(vtkUniformRandomSamplingFilter);
 
 vtkUniformRandomSamplingFilter::vtkUniformRandomSamplingFilter() {}
 
 vtkUniformRandomSamplingFilter::~vtkUniformRandomSamplingFilter() {}
+
+vcg::Point3i vtkUniformRandomSamplingFilter::retrieveTopologyFromCell(vtkCellIterator *cell,
+                                                                      vtkIdList *globalIds) {
+  vtkIdList *idList = cell->GetPointIds();
+  uint inFaceIdBuffer[3];
+
+  for (vtkIdType i = 0; i < 3; ++i) {
+    // This guarantee to not take into account the same point more than one times
+    globalIds->InsertUniqueId(idList->GetId(i));
+    inFaceIdBuffer[i] = static_cast<uint>(idList->GetId(i));
+  }
+
+  // Indexing the actual face putting the topology relationship between the
+  // three vertexes as Point3i with the following meaning:
+  // * first: the index of the vertex on the left side
+  // * second: the index of the central vertex
+  // * third: the index of the vertex on the right side
+  return vcg::Point3i(inFaceIdBuffer[2], inFaceIdBuffer[0], inFaceIdBuffer[1]);
+}
+
+int vtkUniformRandomSamplingFilter::fillCoordsIdsFromDataSet(vtkDataSet *data,
+                                                             std::vector<vcg::Point3f> &coords,
+                                                             std::vector<vcg::Point3i> &ids) {
+  vtkOutputWindow *outputWindow = vtkOutputWindow::GetInstance();
+
+  vcg::Point3i topology;
+
+  vtkCellIterator *itr = data->NewCellIterator();
+  vtkIdList *globalIds = vtkIdList::New();
+  globalIds->Initialize();
+
+  outputWindow->DisplayText("Number of faces: ");
+  outputWindow->DisplayText(std::to_string(data->GetNumberOfCells()).c_str());
+  outputWindow->DisplayText("\n");
+
+  for (itr->InitTraversal(); !itr->IsDoneWithTraversal(); itr->GoToNextCell()) {
+    if (itr->GetPoints()->GetNumberOfPoints() != 3) {
+      outputWindow->DisplayErrorText((std::string()
+                                      + "The current version of the filter supports "
+                                      + "only triangular proper faces. \n").c_str());
+      return 0;
+
+    }
+
+    vcg::Point3i topology = retrieveTopologyFromCell(itr, globalIds);
+
+    outputWindow->DisplayText((std::string("T: ") +
+                               std::to_string(topology.X()) + " " +
+                               std::to_string(topology.Y()) + " " +
+                               std::to_string(topology.Z()) + "\n").c_str());
+
+    ids.push_back(retrieveTopologyFromCell(itr, globalIds));
+  }
+
+  itr->Delete();
+
+  double pointBuffer[3];
+
+  for (vtkIdType i = 0; i < globalIds->GetNumberOfIds(); ++i) {
+    data->GetPoint(globalIds->GetId(i), pointBuffer);
+
+    outputWindow->DisplayText((std::to_string(globalIds->GetId(i)) + ": [" +
+                               std::to_string(pointBuffer[0]) + ", " +
+                               std::to_string(pointBuffer[1]) + ", " +
+                               std::to_string(pointBuffer[2]) + "] \n").c_str());
+
+    coords.push_back(vcg::Point3f(pointBuffer[0], pointBuffer[1], pointBuffer[2]));
+  }
+
+  return 1;
+}
 
 void vtkUniformRandomSamplingFilter::PrintSelf(ostream &os, vtkIndent indent) {
   this->Superclass::PrintSelf(os, indent);
@@ -27,71 +129,42 @@ void vtkUniformRandomSamplingFilter::PrintSelf(ostream &os, vtkIndent indent) {
 int vtkUniformRandomSamplingFilter::RequestData(vtkInformation *request,
                                                 vtkInformationVector **inputVector,
                                                 vtkInformationVector *outputVector) {
-  vtkOutputWindow *outputWindow = vtkOutputWindow::GetInstance();
+  using namespace vcg;
 
-  vtkInformation *input = inputVector[0]->GetInformationObject(0);
-  vtkDataSet *data = vtkDataSet::SafeDownCast(input->Get(vtkDataObject::DATA_OBJECT()));
+  vtkOutputWindow *window = vtkOutputWindow::GetInstance();
 
-  vtkCellIterator *itr = data->NewCellIterator();
-  double pointBuffer[3];
-  uint InFaceIdPointBuffer[3];
-  std::vector<vcg::Point3f> coordinateVector;
-  std::vector<vcg::Point3i> indexVector;
+  VCGMesh mesh;
 
-  outputWindow->DisplayText("Number of faces: ");
-  outputWindow->DisplayText(std::to_string(data->GetNumberOfCells()).c_str());
-  outputWindow->DisplayText("\n");
+  std::vector<Point3f> coordinateVector;
+  std::vector<Point3i> indexVector;
 
-  for (itr->InitTraversal(); !itr->IsDoneWithTraversal(); itr->GoToNextCell()) {
-    vtkPoints *pointSet = itr->GetPoints();
-    vtkIdList *idList = itr->GetPointIds();
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkDataSet *input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet *output = vtkPointSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-    outputWindow->DisplayText("Number of points in the current face: ");
-    outputWindow->DisplayText(std::to_string(idList->GetNumberOfIds()).c_str());
-    outputWindow->DisplayText("\n");
+  if (fillCoordsIdsFromDataSet(input, coordinateVector, indexVector) == 0) { return 0; }
 
-    // The actual version of the filter doesn't support no triangular proper
-    // face.
-    // TODO: Triangularize the mesh in input or require it is already trangularized.
-    if (idList->GetNumberOfIds() != 3) { return 0; }
+  tri::BuildMeshFromCoordVectorIndexVector(mesh, coordinateVector, indexVector);
+  tri::SurfaceSampling<VCGMesh, tri::TrivialSampler<VCGMesh>>::SamplingRandomGenerator().initialize(time(0));
 
-    for (vtkIdType i = 0; i < idList->GetNumberOfIds(); ++i) {
-      pointSet->GetPoint(idList->GetId(i), pointBuffer);
-      outputWindow->DisplayText((std::to_string(idList->GetId(i)) + ": (" +
-                                 std::to_string(pointBuffer[0]) + ", " +
-                                 std::to_string(pointBuffer[1]) + ", " +
-                                 std::to_string(pointBuffer[2]) + ")").c_str());
-      outputWindow->DisplayText("\n");
+  std::vector<Point3f> pointVector; float radius = 0.f;
+  tri::PoissonSampling<VCGMesh>(mesh, pointVector, 1000, radius);
 
-      coordinateVector.push_back(vcg::Point3f(pointBuffer[0], pointBuffer[1], pointBuffer[2]));
-      InFaceIdPointBuffer[i] = static_cast<uint>(idList->GetId(i));
-    }
+  window->DisplayText("Number of sample point: ");
+  window->DisplayText(std::to_string(pointVector.size()).c_str());
+  window->DisplayText("\n");
 
-    // Indexing the actual face putting the topology relationship between the
-    // three vertexes as Point3i with the following meaning:
-    // * first: the index of the left neighbour vertex
-    // * second: the index of the actual vertex
-    // * third: the index of the right neighbour vertex
+  vtkPoints *samplingSet = vtkPoints::New();
 
-    // Indexing of the vertex with id InFaceIdPointBuffer[0]
-    indexVector.push_back(vcg::Point3i(InFaceIdPointBuffer[2],
-                                       InFaceIdPointBuffer[0],
-                                       InFaceIdPointBuffer[1]));
-    // Indexing of the vertex with id InFaceIdPointBuffer[1]
-    indexVector.push_back(vcg::Point3i(InFaceIdPointBuffer[0],
-                                       InFaceIdPointBuffer[1],
-                                       InFaceIdPointBuffer[2]));
-    // Indexing of the vertex with id InFaceIdPointBuffer[2]
-    indexVector.push_back(vcg::Point3i(InFaceIdPointBuffer[1],
-                                       InFaceIdPointBuffer[2],
-                                       InFaceIdPointBuffer[0]));
-
-
-
-    outputWindow->DisplayText("\n");
+  for (auto &&point : pointVector) {
+    window->DisplayText((std::to_string(point.X()) + " " +
+                         std::to_string(point.Y()) + " " +
+                         std::to_string(point.Z()) + "\n").c_str());
+    samplingSet->InsertNextPoint(point.X(), point.Y(), point.Z());
   }
 
-  itr->Delete();
+  output->SetPoints(samplingSet);
 
   return 1;
 }
