@@ -101,7 +101,7 @@ int vtkUniformRandomSamplingFilter::fillCoordsIdsFromDataSet(vtkDataSet *data,
                                std::to_string(topology.Y()) + " " +
                                std::to_string(topology.Z()) + "\n").c_str());
 
-    ids.push_back(retrieveTopologyFromCell(itr, globalIds));
+    ids.push_back(topology);
   }
 
   itr->Delete();
@@ -146,6 +146,9 @@ int vtkUniformRandomSamplingFilter::RequestData(vtkInformation *request,
   if (fillCoordsIdsFromDataSet(input, coordinateVector, indexVector) == 0) { return 0; }
 
   tri::BuildMeshFromCoordVectorIndexVector(mesh, coordinateVector, indexVector);
+  tri::Clean<VCGMesh>::RemoveDuplicateVertex(mesh);
+  tri::Clean<VCGMesh>::RemoveUnreferencedVertex(mesh);
+
   tri::SurfaceSampling<VCGMesh, tri::TrivialSampler<VCGMesh>>::SamplingRandomGenerator().initialize(time(0));
 
   std::vector<Point3f> pointVector; float radius = 0.f;
