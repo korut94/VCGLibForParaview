@@ -13,6 +13,8 @@
 #include "vcg/complex/algorithms/create/platonic.h"
 #include "vcg/complex/algorithms/point_sampling.h"
 
+#include "wrap/io_trimesh/export.h"
+
 #include <algorithm>
 
 class VCGEdge;
@@ -54,20 +56,17 @@ vtkUniformRandomSamplingFilter::~vtkUniformRandomSamplingFilter() {}
 vcg::Point3i vtkUniformRandomSamplingFilter::retrieveTopologyFromCell(vtkCellIterator *cell,
                                                                       vtkIdList *globalIds) {
   vtkIdList *idList = cell->GetPointIds();
-  uint inFaceIdBuffer[3];
+  vtkIdType inFaceIdBuffer[3];
 
   for (vtkIdType i = 0; i < 3; ++i) {
     // This guarantee to not take into account the same point more than one times
     globalIds->InsertUniqueId(idList->GetId(i));
-    inFaceIdBuffer[i] = static_cast<uint>(idList->GetId(i));
+    inFaceIdBuffer[i] = idList->GetId(i);
   }
 
   // Indexing the actual face putting the topology relationship between the
-  // three vertexes as Point3i with the following meaning:
-  // * first: the index of the vertex on the left side
-  // * second: the index of the central vertex
-  // * third: the index of the vertex on the right side
-  return vcg::Point3i(inFaceIdBuffer[2], inFaceIdBuffer[0], inFaceIdBuffer[1]);
+  // three vertexes as Point3i.
+  return vcg::Point3i(inFaceIdBuffer[0], inFaceIdBuffer[1], inFaceIdBuffer[2]);
 }
 
 int vtkUniformRandomSamplingFilter::fillCoordsIdsFromDataSet(vtkDataSet *data,
@@ -134,6 +133,9 @@ int vtkUniformRandomSamplingFilter::RequestData(vtkInformation *request,
   vtkOutputWindow *window = vtkOutputWindow::GetInstance();
 
   VCGMesh mesh;
+  VCGMesh sampledMesh;
+
+  tri::MeshSampler<VCGMesh> mrs(sampledMesh);
 
   std::vector<Point3f> coordinateVector;
   std::vector<Point3i> indexVector;
@@ -148,11 +150,15 @@ int vtkUniformRandomSamplingFilter::RequestData(vtkInformation *request,
   tri::BuildMeshFromCoordVectorIndexVector(mesh, coordinateVector, indexVector);
   tri::Clean<VCGMesh>::RemoveDuplicateVertex(mesh);
   tri::Clean<VCGMesh>::RemoveUnreferencedVertex(mesh);
+  tri::io::ExporterPLY<VCGMesh>::Save(mesh, "/home/andreamnt94/mesh.ply");
 
   tri::SurfaceSampling<VCGMesh, tri::TrivialSampler<VCGMesh>>::SamplingRandomGenerator().initialize(time(0));
 
   std::vector<Point3f> pointVector; float radius = 0.f;
-  tri::PoissonSampling<VCGMesh>(mesh, pointVector, 1000, radius);
+  // tri::PoissonSampling<VCGMesh>(mesh, pointVector, 1000, radius);
+
+  tri::SurfaceSampling<VCGMesh, tri::MeshSampler<VCGMesh>>::VertexUniform(mesh, mrs, 1000);
+  tri::io::ExporterPLY<VCGMesh>::Save(sampledMesh, "/home/andreamnt94/point_cloud.ply");
 
   window->DisplayText("Number of sample point: ");
   window->DisplayText(std::to_string(pointVector.size()).c_str());
