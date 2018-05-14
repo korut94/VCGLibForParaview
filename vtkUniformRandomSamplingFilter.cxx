@@ -49,25 +49,11 @@ class VCGMesh : public vcg::tri::TriMesh<
 
 vtkStandardNewMacro(vtkUniformRandomSamplingFilter);
 
-vtkUniformRandomSamplingFilter::vtkUniformRandomSamplingFilter() {}
+vtkUniformRandomSamplingFilter::vtkUniformRandomSamplingFilter()
+  : NumberOfSamples(1000),
+    Radius(0.f) {}
 
 vtkUniformRandomSamplingFilter::~vtkUniformRandomSamplingFilter() {}
-
-vcg::Point3i vtkUniformRandomSamplingFilter::retrieveTopologyFromCell(vtkCellIterator *cell,
-                                                                      vtkIdList *globalIds) {
-  vtkIdList *idList = cell->GetPointIds();
-  vtkIdType inFaceIdBuffer[3];
-
-  for (vtkIdType i = 0; i < 3; ++i) {
-    // This guarantee to not take into account the same point more than one times
-    globalIds->InsertUniqueId(idList->GetId(i));
-    inFaceIdBuffer[i] = idList->GetId(i);
-  }
-
-  // Indexing the actual face putting the topology relationship between the
-  // three vertexes as Point3i.
-  return vcg::Point3i(inFaceIdBuffer[0], inFaceIdBuffer[1], inFaceIdBuffer[2]);
-}
 
 int vtkUniformRandomSamplingFilter::fillCoordsIdsFromDataSet(vtkDataSet *data,
                                                              std::vector<vcg::Point3f> &coords,
@@ -75,17 +61,19 @@ int vtkUniformRandomSamplingFilter::fillCoordsIdsFromDataSet(vtkDataSet *data,
   vtkOutputWindow *outputWindow = vtkOutputWindow::GetInstance();
 
   vcg::Point3i topology;
+  double pointBuffer[3];
 
   vtkCellIterator *itr = data->NewCellIterator();
-  vtkIdList *globalIds = vtkIdList::New();
-  globalIds->Initialize();
+  vtkIdList *inFaceIdsList = vtkIdList::New();
+
+  inFaceIdsList->Initialize();
 
   outputWindow->DisplayText("Number of faces: ");
   outputWindow->DisplayText(std::to_string(data->GetNumberOfCells()).c_str());
   outputWindow->DisplayText("\n");
 
   for (itr->InitTraversal(); !itr->IsDoneWithTraversal(); itr->GoToNextCell()) {
-    if (itr->GetPoints()->GetNumberOfPoints() != 3) {
+    if (itr->GetCellType() != VTK_TRIANGLE) {
       outputWindow->DisplayErrorText((std::string()
                                       + "The current version of the filter supports "
                                       + "only triangular proper faces. \n").c_str());
@@ -93,7 +81,9 @@ int vtkUniformRandomSamplingFilter::fillCoordsIdsFromDataSet(vtkDataSet *data,
 
     }
 
-    vcg::Point3i topology = retrieveTopologyFromCell(itr, globalIds);
+    data->GetCellPoints(itr->GetCellId(), inFaceIdsList);
+
+    topology = vcg::Point3i(inFaceIdsList->GetId(0), inFaceIdsList->GetId(2), inFaceIdsList->GetId(1));
 
     outputWindow->DisplayText((std::string("T: ") +
                                std::to_string(topology.X()) + " " +
@@ -103,14 +93,13 @@ int vtkUniformRandomSamplingFilter::fillCoordsIdsFromDataSet(vtkDataSet *data,
     ids.push_back(topology);
   }
 
+  inFaceIdsList->Delete();
   itr->Delete();
 
-  double pointBuffer[3];
+  for (vtkIdType i = 0; i < data->GetNumberOfPoints(); ++i) {
+    data->GetPoint(i, pointBuffer);
 
-  for (vtkIdType i = 0; i < globalIds->GetNumberOfIds(); ++i) {
-    data->GetPoint(globalIds->GetId(i), pointBuffer);
-
-    outputWindow->DisplayText((std::to_string(globalIds->GetId(i)) + ": [" +
+    outputWindow->DisplayText((std::to_string(i) + ": [" +
                                std::to_string(pointBuffer[0]) + ", " +
                                std::to_string(pointBuffer[1]) + ", " +
                                std::to_string(pointBuffer[2]) + "] \n").c_str());
@@ -135,8 +124,6 @@ int vtkUniformRandomSamplingFilter::RequestData(vtkInformation *request,
   VCGMesh mesh;
   VCGMesh sampledMesh;
 
-  tri::MeshSampler<VCGMesh> mrs(sampledMesh);
-
   std::vector<Point3f> coordinateVector;
   std::vector<Point3i> indexVector;
 
@@ -150,15 +137,11 @@ int vtkUniformRandomSamplingFilter::RequestData(vtkInformation *request,
   tri::BuildMeshFromCoordVectorIndexVector(mesh, coordinateVector, indexVector);
   tri::Clean<VCGMesh>::RemoveDuplicateVertex(mesh);
   tri::Clean<VCGMesh>::RemoveUnreferencedVertex(mesh);
-  tri::io::ExporterPLY<VCGMesh>::Save(mesh, "/home/andreamnt94/mesh.ply");
 
   tri::SurfaceSampling<VCGMesh, tri::TrivialSampler<VCGMesh>>::SamplingRandomGenerator().initialize(time(0));
 
-  std::vector<Point3f> pointVector; float radius = 0.f;
-  // tri::PoissonSampling<VCGMesh>(mesh, pointVector, 1000, radius);
-
-  tri::SurfaceSampling<VCGMesh, tri::MeshSampler<VCGMesh>>::VertexUniform(mesh, mrs, 1000);
-  tri::io::ExporterPLY<VCGMesh>::Save(sampledMesh, "/home/andreamnt94/point_cloud.ply");
+  std::vector<Point3f> pointVector;
+  tri::PoissonSampling<VCGMesh>(mesh, pointVector, NumberOfSamples, Radius);
 
   window->DisplayText("Number of sample point: ");
   window->DisplayText(std::to_string(pointVector.size()).c_str());
