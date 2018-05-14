@@ -14,6 +14,11 @@ public:
   static vtkUniformRandomSamplingFilter *New();
   vtkTypeMacro(vtkUniformRandomSamplingFilter, vtkPointSetAlgorithm);
 
+  vtkSetMacro(NumberOfSamples, int);
+  vtkGetMacro(NumberOfSamples, int);
+  vtkSetMacro(Radius, float);
+  vtkGetMacro(Radius, float);
+
   void PrintSelf(ostream &os, vtkIndent indent);
 
 protected:
@@ -25,6 +30,9 @@ protected:
                   vtkInformationVector *outputVector);
 
 private:
+  int NumberOfSamples;
+  float Radius;
+
   vtkUniformRandomSamplingFilter(const vtkUniformRandomSamplingFilter&) = delete;
   vtkUniformRandomSamplingFilter(vtkUniformRandomSamplingFilter&&) = delete;
   vtkUniformRandomSamplingFilter& operator=(const vtkUniformRandomSamplingFilter&) = delete;
@@ -32,9 +40,6 @@ private:
   int fillCoordsIdsFromDataSet(vtkDataSet *data,
                                std::vector<vcg::Point3f> &coords,
                                std::vector<vcg::Point3i> &ids);
-
-  vcg::Point3i retrieveTopologyFromCell(vtkCellIterator *cell,
-                                        vtkIdList *globalIds);
 };
 
 #endif // VTKUNIFORMRANDOMSAMPLING_H

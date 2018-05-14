@@ -5,24 +5,36 @@
         class="vtkUniformRandomSamplingFilter"
         label="Uniform Random Sampling">
 
-     <Documentation
-        long_help=""
-        short_help="">
-     </Documentation>
+      <Documentation
+          long_help=""
+          short_help="">
+      </Documentation>
 
-     <InputProperty
-        name="Input"
-        command="SetInputConnection">
-           <ProxyGroupDomain name="groups">
-             <Group name="sources"/>
-             <Group name="filters"/>
-           </ProxyGroupDomain>
-           <DataTypeDomain name="input_type">
-             <DataType value="vtkDataSet"/>
-           </DataTypeDomain>
+      <InputProperty
+          name="Input"
+          command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet"/>
+        </DataTypeDomain>
       </InputProperty>
 
+      <IntVectorProperty name="NumberOfSamples"
+                         command="SetNumberOfSamples"
+                         number_of_elements="1"
+                         default_values="1000">
+      </IntVectorProperty>
+
+      <DoubleVectorProperty name="Radius"
+                            command="SetRadius"
+                            number_of_elements="1"
+                            default_values="0">
+      </DoubleVectorProperty>
+
       <OutputPort name="Output" />
-   </SourceProxy>
- </ProxyGroup>
+    </SourceProxy>
+  </ProxyGroup>
 </ServerManagerConfiguration> 
