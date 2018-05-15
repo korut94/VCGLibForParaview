@@ -35,6 +35,39 @@
       </DoubleVectorProperty>
 
       <OutputPort name="Output" />
+
+      <Hints>
+        <ShowInMenu category="VCG" />
+      </Hints>
+    </SourceProxy>
+
+    <SourceProxy
+        name="HausdorffDistanceFilter"
+        class="vcgHausdorffDistanceFilter"
+        label="Hausdorff Distance">
+
+      <Documentation
+          long_help=""
+          short_help="">
+      </Documentation>
+
+      <InputProperty
+          name="Input"
+          command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <OutputPort name="Output" />
+
+      <Hints>
+        <ShowInMenu category="VCG" />
+      </Hints>
     </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration> 
