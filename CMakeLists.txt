@@ -14,8 +14,8 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(
   vcglib
-  src/HausdorffDistance
-  src/UniformRandomSampling
+  src/filters/HausdorffDistance
+  src/filters/UniformRandomSampling
  )
 
 # Set a consistent MACOSX_RPATH default across all CMake versions.
@@ -29,6 +29,6 @@ ADD_PARAVIEW_PLUGIN(
   VCG
   "1.0"
   SERVER_MANAGER_XML VCGPlugin.xml
-  SERVER_MANAGER_SOURCES  src/HausdorffDistance/vcgHausdorffDistanceFilter.cpp
-                          src/UniformRandomSampling/vcgUniformRandomSamplingFilter.cpp
+  SERVER_MANAGER_SOURCES  src/filters/HausdorffDistance/vcgHausdorffDistanceFilter.cpp
+                          src/filters/UniformRandomSampling/vcgUniformRandomSamplingFilter.cpp
 )
