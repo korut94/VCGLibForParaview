@@ -1,6 +1,6 @@
 # Copyright 2018 Andrea Mantovani
 
-PROJECT(vtkUniformRandomSampling)
+PROJECT(VCGPlugin)
 
 cmake_minimum_required(VERSION 3.3)
 
@@ -12,7 +12,11 @@ endif()
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 include_directories(${EIGEN3_INCLUDE_DIR})
-include_directories(vcglib)
+include_directories(
+  vcglib
+  src/HausdorffDistance
+  src/UniformRandomSampling
+ )
 
 # Set a consistent MACOSX_RPATH default across all CMake versions.
 # When CMake 2.8.12 is required, change this default to 1.
@@ -22,8 +26,9 @@ if(NOT DEFINED CMAKE_MACOSX_RPATH)
 endif()
 
 ADD_PARAVIEW_PLUGIN(
-  UniformRandomSampling
+  VCG
   "1.0"
-  SERVER_MANAGER_XML UniformRandomSampling.xml
-  SERVER_MANAGER_SOURCES vtkUniformRandomSamplingFilter.cxx
+  SERVER_MANAGER_XML VCGPlugin.xml
+  SERVER_MANAGER_SOURCES  src/HausdorffDistance/vcgHausdorffDistanceFilter.cpp
+                          src/UniformRandomSampling/vtkUniformRandomSamplingFilter.cpp
 )
