@@ -1,6 +1,6 @@
 // Copyright 2018 Andrea Mantovani
 
-#include "vtkUniformRandomSamplingFilter.h"
+#include "vcgUniformRandomSamplingFilter.h"
 
 #include "vtkCellIterator.h"
 #include "vtkInformation.h"
@@ -47,15 +47,15 @@ class VCGMesh : public vcg::tri::TriMesh<
   std::vector<VCGFace>,
   std::vector<VCGEdge>> {};
 
-vtkStandardNewMacro(vtkUniformRandomSamplingFilter);
+vtkStandardNewMacro(vcgUniformRandomSamplingFilter);
 
-vtkUniformRandomSamplingFilter::vtkUniformRandomSamplingFilter()
+vcgUniformRandomSamplingFilter::vcgUniformRandomSamplingFilter()
   : NumberOfSamples(1000),
     Radius(0.f) {}
 
-vtkUniformRandomSamplingFilter::~vtkUniformRandomSamplingFilter() {}
+vcgUniformRandomSamplingFilter::~vcgUniformRandomSamplingFilter() {}
 
-int vtkUniformRandomSamplingFilter::fillCoordsIdsFromDataSet(vtkDataSet *data,
+int vcgUniformRandomSamplingFilter::fillCoordsIdsFromDataSet(vtkDataSet *data,
                                                              std::vector<vcg::Point3f> &coords,
                                                              std::vector<vcg::Point3i> &ids) {
   vtkOutputWindow *outputWindow = vtkOutputWindow::GetInstance();
@@ -110,11 +110,11 @@ int vtkUniformRandomSamplingFilter::fillCoordsIdsFromDataSet(vtkDataSet *data,
   return 1;
 }
 
-void vtkUniformRandomSamplingFilter::PrintSelf(ostream &os, vtkIndent indent) {
+void vcgUniformRandomSamplingFilter::PrintSelf(ostream &os, vtkIndent indent) {
   this->Superclass::PrintSelf(os, indent);
 }
 
-int vtkUniformRandomSamplingFilter::RequestData(vtkInformation *request,
+int vcgUniformRandomSamplingFilter::RequestData(vtkInformation *request,
                                                 vtkInformationVector **inputVector,
                                                 vtkInformationVector *outputVector) {
   using namespace vcg;

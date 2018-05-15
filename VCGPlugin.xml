@@ -2,7 +2,7 @@
   <ProxyGroup name="filters">
     <SourceProxy
         name="UniformRandomSamplingFilter"
-        class="vtkUniformRandomSamplingFilter"
+        class="vcgUniformRandomSamplingFilter"
         label="Uniform Random Sampling">
 
       <Documentation

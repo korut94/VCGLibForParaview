@@ -30,5 +30,5 @@ ADD_PARAVIEW_PLUGIN(
   "1.0"
   SERVER_MANAGER_XML VCGPlugin.xml
   SERVER_MANAGER_SOURCES  src/HausdorffDistance/vcgHausdorffDistanceFilter.cpp
-                          src/UniformRandomSampling/vtkUniformRandomSamplingFilter.cpp
+                          src/UniformRandomSampling/vcgUniformRandomSamplingFilter.cpp
 )
