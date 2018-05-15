@@ -1,18 +1,18 @@
 // Copyright 2018 Andrea Mantovani
 
-#ifndef VTKUNIFORMRANDOMSAMPLING_H
-#define VTKUNIFORMRANDOMSAMPLING_H
+#ifndef VCGUNIFORMRANDOMSAMPLING_H
+#define VCGUNIFORMRANDOMSAMPLING_H
 
 #include "vtkDataSet.h"
 #include "vtkPointSetAlgorithm.h"
 
 #include "vcg/complex/complex.h"
 
-class VTK_EXPORT vtkUniformRandomSamplingFilter : public vtkPointSetAlgorithm
+class VTK_EXPORT vcgUniformRandomSamplingFilter : public vtkPointSetAlgorithm
 {
 public:
-  static vtkUniformRandomSamplingFilter *New();
-  vtkTypeMacro(vtkUniformRandomSamplingFilter, vtkPointSetAlgorithm);
+  static vcgUniformRandomSamplingFilter *New();
+  vtkTypeMacro(vcgUniformRandomSamplingFilter, vtkPointSetAlgorithm);
 
   vtkSetMacro(NumberOfSamples, int);
   vtkGetMacro(NumberOfSamples, int);
@@ -22,8 +22,8 @@ public:
   void PrintSelf(ostream &os, vtkIndent indent);
 
 protected:
-  vtkUniformRandomSamplingFilter();
-  ~vtkUniformRandomSamplingFilter();
+  vcgUniformRandomSamplingFilter();
+  ~vcgUniformRandomSamplingFilter();
 
   int RequestData(vtkInformation *request,
                   vtkInformationVector **inputVector,
@@ -33,15 +33,15 @@ private:
   int NumberOfSamples;
   float Radius;
 
-  vtkUniformRandomSamplingFilter(const vtkUniformRandomSamplingFilter&) = delete;
-  vtkUniformRandomSamplingFilter(vtkUniformRandomSamplingFilter&&) = delete;
-  vtkUniformRandomSamplingFilter& operator=(const vtkUniformRandomSamplingFilter&) = delete;
+  vcgUniformRandomSamplingFilter(const vcgUniformRandomSamplingFilter&) = delete;
+  vcgUniformRandomSamplingFilter(vcgUniformRandomSamplingFilter&&) = delete;
+  vcgUniformRandomSamplingFilter& operator=(const vcgUniformRandomSamplingFilter&) = delete;
 
   int fillCoordsIdsFromDataSet(vtkDataSet *data,
                                std::vector<vcg::Point3f> &coords,
                                std::vector<vcg::Point3i> &ids);
 };
 
-#endif // VTKUNIFORMRANDOMSAMPLING_H
+#endif // VCGUNIFORMRANDOMSAMPLING_H
 
 
