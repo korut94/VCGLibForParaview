@@ -30,6 +30,8 @@ protected:
                   vtkInformationVector *outputVector);
 
 private:
+  static const int _DEFAULT_NUMBER_OF_SAMPLES = 1000;
+
   int NumberOfSamples;
   float Radius;
 

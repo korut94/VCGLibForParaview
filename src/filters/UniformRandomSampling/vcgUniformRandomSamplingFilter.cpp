@@ -50,7 +50,7 @@ class VCGMesh : public vcg::tri::TriMesh<
 vtkStandardNewMacro(vcgUniformRandomSamplingFilter);
 
 vcgUniformRandomSamplingFilter::vcgUniformRandomSamplingFilter()
-  : NumberOfSamples(1000),
+  : NumberOfSamples(_DEFAULT_NUMBER_OF_SAMPLES),
     Radius(0.f) {}
 
 vcgUniformRandomSamplingFilter::~vcgUniformRandomSamplingFilter() {}
@@ -141,6 +141,8 @@ int vcgUniformRandomSamplingFilter::RequestData(vtkInformation *request,
   tri::SurfaceSampling<VCGMesh, tri::TrivialSampler<VCGMesh>>::SamplingRandomGenerator().initialize(time(0));
 
   std::vector<Point3f> pointVector;
+
+  if (NumberOfSamples == 0 && Radius == 0.f) { NumberOfSamples = _DEFAULT_NUMBER_OF_SAMPLES; }
   tri::PoissonSampling<VCGMesh>(mesh, pointVector, NumberOfSamples, Radius);
 
   window->DisplayText("Number of sample point: ");
