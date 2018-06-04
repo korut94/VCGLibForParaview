@@ -3,10 +3,7 @@
 #ifndef VCGUNIFORMRANDOMSAMPLING_H
 #define VCGUNIFORMRANDOMSAMPLING_H
 
-#include "vtkDataSet.h"
 #include "vtkPointSetAlgorithm.h"
-
-#include "vcg/complex/complex.h"
 
 class VTK_EXPORT vcgUniformRandomSamplingFilter : public vtkPointSetAlgorithm
 {
@@ -38,10 +35,6 @@ private:
   vcgUniformRandomSamplingFilter(const vcgUniformRandomSamplingFilter&) = delete;
   vcgUniformRandomSamplingFilter(vcgUniformRandomSamplingFilter&&) = delete;
   vcgUniformRandomSamplingFilter& operator=(const vcgUniformRandomSamplingFilter&) = delete;
-
-  int fillCoordsIdsFromDataSet(vtkDataSet *data,
-                               std::vector<vcg::Point3f> &coords,
-                               std::vector<vcg::Point3i> &ids);
 };
 
 #endif // VCGUNIFORMRANDOMSAMPLING_H
