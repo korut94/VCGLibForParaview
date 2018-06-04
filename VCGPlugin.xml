@@ -52,7 +52,20 @@
       </Documentation>
 
       <InputProperty
-          name="Input"
+          name="SourceData"
+          command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <InputProperty
+          name="TargetData"
+          port_index="1"
           command="SetInputConnection">
         <ProxyGroupDomain name="groups">
           <Group name="sources"/>
