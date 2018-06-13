@@ -11,10 +11,11 @@ public:
   static vcgUniformRandomSamplingFilter *New();
   vtkTypeMacro(vcgUniformRandomSamplingFilter, vtkPointSetAlgorithm);
 
-  vtkSetMacro(NumberOfSamples, int);
   vtkGetMacro(NumberOfSamples, int);
-  vtkSetMacro(Radius, float);
   vtkGetMacro(Radius, float);
+
+  vtkSetMacro(NumberOfSamples, int);
+  vtkSetMacro(Radius, float);
 
   void PrintSelf(ostream &os, vtkIndent indent);
 
