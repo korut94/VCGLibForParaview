@@ -76,6 +76,40 @@
         </DataTypeDomain>
       </InputProperty>
 
+      <IntVectorProperty name="NumberOfSamples"
+                         command="SetNumberOfSamples"
+                         number_of_elements="1"
+                         default_values="10000">
+      </IntVectorProperty>
+
+      <IntVectorProperty name="SampleEdge"
+                         command="SetSampleEdge"
+                         number_of_elements="1"
+                         default_values="0">
+        <BooleanDomain name="bool" />
+      </IntVectorProperty>
+
+      <IntVectorProperty name="SampleFauxEdge"
+                         command="SetSampleFauxEdge"
+                         number_of_elements="1"
+                         default_values="0">
+        <BooleanDomain name="bool" />
+      </IntVectorProperty>
+
+      <IntVectorProperty name="SampleFace"
+                         command="SetSampleFace"
+                         number_of_elements="1"
+                         default_values="1">
+        <BooleanDomain name="bool" />
+      </IntVectorProperty>
+
+      <IntVectorProperty name="SampleVert"
+                         command="SetSampleVert"
+                         number_of_elements="1"
+                         default_values="0">
+        <BooleanDomain name="bool" />
+      </IntVectorProperty>
+
       <OutputPort name="Output" />
 
       <Hints>
