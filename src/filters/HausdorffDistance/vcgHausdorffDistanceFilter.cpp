@@ -79,7 +79,7 @@ int vcgHausdorffDistanceFilter::RequestData(vtkInformation *request,
 
   vtkSmartPointer<vtkDoubleArray> rmsDistanceFieldData = vtkSmartPointer<vtkDoubleArray>::New();
   rmsDistanceFieldData->SetNumberOfComponents(1);
-  rmsDistanceFieldData->SetName("RMS Distance");
+  rmsDistanceFieldData->SetName("RMSDistance");
   rmsDistanceFieldData->InsertNextValue(hs.getRMSDist());
 
   output->DeepCopy(sourceData);
