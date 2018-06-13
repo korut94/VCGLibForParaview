@@ -26,7 +26,8 @@ class VCGDefaultFace : public vcg::Face<
   vcg::face::VertexRef,
   vcg::face::Normal3f,
   vcg::face::FFAdj,
-  vcg::face::BitFlags> {};
+  vcg::face::BitFlags,
+  vcg::face::Mark> {};
 
 class VCGDefaultEdge : public vcg::Edge<VCGDefaultUsedTypes> {};
 
