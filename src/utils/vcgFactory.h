@@ -1,3 +1,5 @@
+// Copyright 2018 Andrea Mantovani
+
 #ifndef UTILSVCGFACTORY_H
 #define UTILSVCGFACTORY_H
 

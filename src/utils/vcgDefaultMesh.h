@@ -1,3 +1,5 @@
+// Copyright 2018 Andrea Mantovani
+
 #ifndef UTILSVCGDEFAULTMESH_H
 #define UTILSVCGDEFAULTMESH_H
 
