@@ -14,9 +14,13 @@ class vcgFactory
 private:
   vcgFactory() = default;
 
-  // The template parameter is not meaniful for the method itself, it just to
-  // make the method a template. Using a common no template method the build
-  // fails declaring that there are multiple definition of
+  static constexpr const char *MESSAGE_NO_TRIANGULAR_FACE = "Some cells of the mesh "
+    "are not triangular proper face. Please consider to apply the Paraview's "
+    "filter 'Triangulate' over your mesh and retry.";
+
+  // The template parameter is not meaningful for the method itself, it just
+  // to make the method a template. Using a common no template method the
+  // build fails declaring that there are multiple definition of
   // ExtractVertexesFromDataSet method.
   template <typename MeshType>
   static int ExtractVertexesFromDataSet(vtkDataSet *data,
@@ -42,16 +46,15 @@ int vcgFactory::ExtractVertexesFromDataSet(
   vtkIdList *inFaceIdsList = vtkIdList::New();
 
   inFaceIdsList->Initialize();
-
+#ifdef NDEBUG
   outputWindow->DisplayText("Number of faces: ");
   outputWindow->DisplayText(std::to_string(data->GetNumberOfCells()).c_str());
   outputWindow->DisplayText("\n");
+#endif
 
   for (itr->InitTraversal(); !itr->IsDoneWithTraversal(); itr->GoToNextCell()) {
     if (itr->GetCellType() != VTK_TRIANGLE) {
-      outputWindow->DisplayErrorText((std::string()
-                                      + "The current version of the filter supports "
-                                      + "only triangular proper faces. \n").c_str());
+      outputWindow->DisplayErrorText(MESSAGE_NO_TRIANGULAR_FACE);
       inFaceIdsList->Delete();
       itr->Delete();
 
@@ -61,12 +64,12 @@ int vcgFactory::ExtractVertexesFromDataSet(
     data->GetCellPoints(itr->GetCellId(), inFaceIdsList);
 
     topology = vcg::Point3i(inFaceIdsList->GetId(0), inFaceIdsList->GetId(2), inFaceIdsList->GetId(1));
-
+#ifdef NDEBUG
     outputWindow->DisplayText((std::string("T: ") +
                                std::to_string(topology.X()) + " " +
                                std::to_string(topology.Y()) + " " +
                                std::to_string(topology.Z()) + "\n").c_str());
-
+#endif
     ids.push_back(topology);
   }
 
@@ -75,12 +78,12 @@ int vcgFactory::ExtractVertexesFromDataSet(
 
   for (vtkIdType i = 0; i < data->GetNumberOfPoints(); ++i) {
     data->GetPoint(i, pointBuffer);
-
+#ifdef NDEBUG
     outputWindow->DisplayText((std::to_string(i) + ": [" +
                                std::to_string(pointBuffer[0]) + ", " +
                                std::to_string(pointBuffer[1]) + ", " +
                                std::to_string(pointBuffer[2]) + "] \n").c_str());
-
+#endif
     coords.push_back(vcg::Point3f(pointBuffer[0], pointBuffer[1], pointBuffer[2]));
   }
 
