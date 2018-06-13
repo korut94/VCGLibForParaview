@@ -11,6 +11,18 @@ public:
   static vcgHausdorffDistanceFilter* New();
   vtkTypeMacro(vcgHausdorffDistanceFilter, vtkPointSetAlgorithm);
 
+  vtkGetMacro(NumberOfSamples, int);
+  vtkGetMacro(SampleEdge, bool);
+  vtkGetMacro(SampleFace, bool);
+  vtkGetMacro(SampleFauxEdge, bool);
+  vtkGetMacro(SampleVert, bool);
+
+  vtkSetMacro(NumberOfSamples, int);
+  vtkSetMacro(SampleEdge, bool);
+  vtkSetMacro(SampleFace, bool);
+  vtkSetMacro(SampleFauxEdge, bool);
+  vtkSetMacro(SampleVert, bool);
+
   void PrintSelf(ostream &os, vtkIndent indent);
 
 protected:
@@ -22,6 +34,12 @@ protected:
                   vtkInformationVector *outputVector);
 
 private:
+  int   NumberOfSamples;
+  bool  SampleEdge;
+  bool  SampleFace;
+  bool  SampleFauxEdge;
+  bool  SampleVert; 
+
   vcgHausdorffDistanceFilter(const vcgHausdorffDistanceFilter&) = delete;
   vcgHausdorffDistanceFilter(vcgHausdorffDistanceFilter&&) = delete;
   vcgHausdorffDistanceFilter& operator=(const vcgHausdorffDistanceFilter&) = delete;
