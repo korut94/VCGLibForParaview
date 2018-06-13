@@ -6,9 +6,13 @@
 #include "src/utils/vcgDefaultMesh.h"
 
 #include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
+#include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointSet.h"
+#include "vtkSmartPointer.h"
 
 #include "vcg/complex/algorithms/clean.h"
 #include "vcg/complex/algorithms/point_sampling.h"
@@ -34,8 +38,11 @@ int vcgHausdorffDistanceFilter::RequestData(vtkInformation *request,
   
   vtkInformation *inSourceInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *inTargetInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   vtkDataSet *sourceData = vtkDataSet::SafeDownCast(inSourceInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *targetData = vtkDataSet::SafeDownCast(inTargetInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet *output = vtkPointSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   Mesh source;
   Mesh target;
@@ -45,29 +52,40 @@ int vcgHausdorffDistanceFilter::RequestData(vtkInformation *request,
     return 0;
   }
 
-  if (source.Tr != Matrix44m::Identity()) {
-    tri::UpdatePosition<Mesh>::Matrix(source, source.Tr, true);
-  }
-
-  if (target.Tr != Matrix44m::Identity()) {
-    tri::UpdatePosition<Mesh>::Matrix(target, target.Tr, true);
-  }
-
   tri::UpdateNormal<Mesh>::PerFaceNormalized(target);
 
   HausdorffSampler<Mesh> hs(&target);
-  hs.dist_upper_bound = 0; // TODO: add property Max Distant
+  hs.dist_upper_bound = 1000; // TODO: add property Max Distant
 
-  tri::SurfaceSampling<Mesh, HausdorffSampler<Mesh>>::Montecarlo(source, hs, 1000); // TODO: add property Sample Number
-
-  // Realy needed??
-  if (source.Tr != Matrix44m::Identity()) {
-    tri::UpdatePosition<Mesh>::Matrix(source, source.Tr, true);
+  if (SampleVert) {
+    tri::SurfaceSampling<Mesh, HausdorffSampler<Mesh>>::VertexUniform(source, hs, NumberOfSamples);
+  } if (SampleEdge) {
+    tri::SurfaceSampling<Mesh, HausdorffSampler<Mesh>>::EdgeUniform(source, hs, NumberOfSamples, SampleFauxEdge);
+  } if (SampleFace) {
+    tri::SurfaceSampling<Mesh, HausdorffSampler<Mesh>>::Montecarlo(source, hs, NumberOfSamples);
   }
 
-  if (target.Tr != Matrix44m::Identity()) {
-    tri::UpdatePosition<Mesh>::Matrix(target, target.Tr, true);
-  }
+  double distanceRange[3] = {hs.getMinDist(), hs.getMeanDist(), hs.getMaxDist()};
+
+  vtkSmartPointer<vtkDoubleArray> hausdorffDistanceFieldData = vtkSmartPointer<vtkDoubleArray>::New();
+  hausdorffDistanceFieldData->SetNumberOfComponents(3);
+  hausdorffDistanceFieldData->SetName("DistanceRange");
+  hausdorffDistanceFieldData->InsertNextTuple(distanceRange);
+
+  vtkSmartPointer<vtkDoubleArray> distanceRangeFieldData = vtkSmartPointer<vtkDoubleArray>::New();
+  distanceRangeFieldData->SetNumberOfComponents(1);
+  distanceRangeFieldData->SetName("HausdorffDistance");
+  distanceRangeFieldData->InsertNextValue(hs.getMaxDist());
+
+  vtkSmartPointer<vtkDoubleArray> rmsDistanceFieldData = vtkSmartPointer<vtkDoubleArray>::New();
+  rmsDistanceFieldData->SetNumberOfComponents(1);
+  rmsDistanceFieldData->SetName("RMS Distance");
+  rmsDistanceFieldData->InsertNextValue(hs.getRMSDist());
+
+  output->DeepCopy(sourceData);
+  output->GetFieldData()->AddArray(distanceRangeFieldData);
+  output->GetFieldData()->AddArray(hausdorffDistanceFieldData);
+  output->GetFieldData()->AddArray(rmsDistanceFieldData);
 
   return 1;
 }
