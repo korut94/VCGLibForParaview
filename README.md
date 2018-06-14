@@ -6,7 +6,7 @@ The main goal is bringing the VGC functionalities inside Paraview but also
 provide a set of utilities to make really confortable passing from the VCG 
 world to the VTK one and viceversa.
 
-## Installation
+## Install
 Once downlaod the source code, enter into the directory
 
 ```cd VCGLibForParaview```
@@ -15,8 +15,8 @@ and download all the dependencies source files by running
 
 ```git submodules update --init```
 
-In order to build the Paraview plugin make a directory (preferably outside the 
-source directoy) where the make files will be generated
+In order to build the Paraview plugin, make a directory (outside the  source 
+directoy preferably) where the `MakeFile` will be generated
 
 ```cd .. && mkdir VCGLibForParaview_build && cd VCGLibForParaview_build```
 
