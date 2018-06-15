@@ -91,8 +91,8 @@ ADD_PARAVIEW_PLUGIN(
   VCG
   "1.0"
   SERVER_MANAGER_XML VCGPlugin.xml
-  SERVER_MANAGER_SOURCES  src/filters/HausdorffDistance/vcgHausdorffDistanceFilter.cpp
-                          src/filters/UniformRandomSampling/vcgUniformRandomSamplingFilter.cpp
+  SERVER_MANAGER_SOURCES  ...
+                          src/filters/NewVCGAlgorithm/vcgNewVCGAlgorithmFiler.cpp
 )
 ```
 
