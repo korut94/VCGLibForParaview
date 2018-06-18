@@ -3,17 +3,19 @@ VCGLibForParaview is an university project for the Scientific and Large Data
 Visualization course of the University of Pisa.
 
 The main goal is bringing the VGC functionalities inside Paraview but also
-provide a set of utilities to make really confortable moving between the VCG 
-world and the VTK one or viceversa.
+providing a set of utilities to make really confortable moving between the VCG 
+world and the VTK one or viceversa. The result is a Paraview plugin with the
+many advanced VCG algorithms encapsulated in single place and completely
+available through the pipeline-based framework. 
 
 ## Installation
-Once downlaod the source code, go into the directory
+Once downloaded the source code, go into the directory
 
 ```
 cd VCGLibForParaview
 ```
 
-and get all the dependencies by running
+and get all the dependencies by running:
 
 ```
 git submodules update --init
@@ -21,8 +23,8 @@ git submodules update --init
 
 this starts the download of the VCGLib from the `develop` branch.
 
-In order to build the Paraview plugin, make a directory (outside the  source 
-directoy preferably) where the `MakeFile` will be generated
+In order to build the Paraview plugin, make a directory (outside the source 
+directoy preferably) where the `MakeFile` will be generated:
 
 ```
 mkdir ../VCGLibForParaview_build && cd ../VCGLibForParaview_build
@@ -40,22 +42,22 @@ plugin in `debug` mode you have to set the option `CMAKE_BUILD_TYPE` to
 `Debug`. After this type `c` (configure) and `g` (generate the makefile and
 exit).
 
-Finally start the build running
+Finally build the plugin running:
 
 ```
 make
 ``` 
 
-and inside the directory a `libVCG` shared library should be created.
+and inside the directory the `libVCG` shared library should be appeared.
 
 Now open Paraview and load the library throught the Plugin Manager
 (`Tools > Manage Plugin`) by clicking in `Load New...` and selecting the
-shared library. If no errors are occured the entry `VCG` is shown with status 
-`Loaded` and in the `Filters` section the `VCG` group has been added with
+shared library. If no errors are occured, the entry `VCG` is shown with status 
+`Loaded` and in the `Filters` section the `VCG` group is added with
 all the filters of this plugin as well.
 
 ## Contributing
-Paraview allow you to extend it by `Filters` but also `Reader` and `Writer`, 
+Paraview allow you to extend it by `Filter`s but also `Reader`s and `Writer`s, 
 as explain here [Paraview/Plugin HowTo](https://www.paraview.org/Wiki/ParaView/Plugin_HowTo).
 Since the actual version of the plugin exports just Paraview's filters, only
 they will be covered by this section.
@@ -71,8 +73,7 @@ source code files. As name for the filter class use the form `vcgXXXFilter`
 (e.g. `vcgNewVCGAlgorithmFilter`) in order to distinguish it from the VTK
 classes.
 
-Then there are two files to update to include the new filter inside the plugin's
-library:
+Then there are two files to update to include the new filter inside the plugin:
 
 #### `CMakeLists.txt`
 Add the path of your directory filter inside the `include_directories` statement
