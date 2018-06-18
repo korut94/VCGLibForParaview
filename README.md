@@ -6,7 +6,7 @@ The main goal is bringing the VGC functionalities inside Paraview but also
 provide a set of utilities to make really confortable moving between the VCG 
 world and the VTK one and viceversa.
 
-## Install
+## Installation
 Once downlaod the source code, go into the directory
 
 ```
@@ -54,7 +54,7 @@ shared library. If no errors are occured the entry `VCG` is shown with status
 `Loaded` and in the `Filters` section the `VCG` group has been added with
 all the filters of this plugin as well.
 
-## Collaborate
+## Contributing
 Paraview allow you to extend it by `Filters` but also `Reader` and `Writer`, 
 as explain here [Paraview/Plugin HowTo](https://www.paraview.org/Wiki/ParaView/Plugin_HowTo).
 Since that the actual version of the plugin exports just Paraview's filters
