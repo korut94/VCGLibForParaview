@@ -61,8 +61,8 @@ Since that the actual version of the plugin exports just Paraview's filters
 only their will be covered by this section.
 
 ### Filters
-It's highly reccomanded reading the Paraview documentation [Adding a Filter](https://www.paraview.org/Wiki/ParaView/Plugin_HowTo#Adding_a_Filter) on the *Plugin HowTo* Paraview Wiki page,
-since the following instruction steps are derived from those one
+It's highly recommended reading the Paraview documentation [Adding a Filter](https://www.paraview.org/Wiki/ParaView/Plugin_HowTo#Adding_a_Filter) on the *Plugin HowTo* Paraview Wiki page,
+since the following instruction steps are derived from those ones
 described in that page.
 
 First of all, create a directory over the path `src/filter` with the name of
@@ -78,7 +78,7 @@ library:
 Add the path of your directory filter inside the `include_directories` statement
 and add the path of the filter `.cpp` file in `SERVER_MANAGER_SOURCES`.
 
-```
+```CMake
 include_directories(
   vcglib
   ...
@@ -97,3 +97,22 @@ ADD_PARAVIEW_PLUGIN(
 ```
 
 #### `VCGPlugin.xml`
+To make interactable your plugin from Paraview you have to add a `SourceProxy`
+tag which describe its componenents (e.g. input ports, output ports, parameters,
+etc). The body of the `SourceProxy` should be like as follow:
+
+```XML
+<SourceProxy name="NewVCGAlgorithmFilter"
+             class="vcgNewVCGAlgorithmFilter"
+             label="New VCG Algorithm">
+  
+  <!-- Put your stuff here -->
+  
+  <Hints> 
+    <ShowInMenu category="VCG" />
+  </Hints>
+</SourceProxy>
+```
+Remember to declare the `ShowInMenu` tag with the `category` attribute set 
+to `VCG`, so the filter will be grouped with the other ones in the `VCG`
+section of the Paraview `Filter` menu.
