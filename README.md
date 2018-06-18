@@ -4,7 +4,7 @@ Visualization course of the University of Pisa.
 
 The main goal is bringing the VGC functionalities inside Paraview but also
 provide a set of utilities to make really confortable moving between the VCG 
-world and the VTK one and viceversa.
+world and the VTK one or viceversa.
 
 ## Installation
 Once downlaod the source code, go into the directory
@@ -115,4 +115,4 @@ etc). The body of the `SourceProxy` should be like as follow:
 ```
 Remember to declare the `ShowInMenu` tag with the `category` attribute set 
 to `VCG`, so the filter will be grouped with the other ones in the `VCG`
-section of the Paraview `Filter` menu.
+section of the Paraview `Filters` menu.
