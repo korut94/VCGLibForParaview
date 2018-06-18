@@ -57,11 +57,11 @@ all the filters of this plugin as well.
 ## Contributing
 Paraview allow you to extend it by `Filters` but also `Reader` and `Writer`, 
 as explain here [Paraview/Plugin HowTo](https://www.paraview.org/Wiki/ParaView/Plugin_HowTo).
-Since that the actual version of the plugin exports just Paraview's filters
-only their will be covered by this section.
+Since the actual version of the plugin exports just Paraview's filters, only
+they will be covered by this section.
 
 ### Filters
-It's highly recommended reading the Paraview documentation [Adding a Filter](https://www.paraview.org/Wiki/ParaView/Plugin_HowTo#Adding_a_Filter) on the *Plugin HowTo* Paraview Wiki page,
+It's highly recommended reading the Paraview documentation [Adding a Filter](https://www.paraview.org/Wiki/ParaView/Plugin_HowTo#Adding_a_Filter) on the Paraview Wiki page *Plugin HowTo*,
 since the following instruction steps are derived from those ones
 described in that page.
 
