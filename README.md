@@ -56,7 +56,7 @@ shared library. If no errors are occured, the entry `VCG` is shown with status
 `Loaded` and in the `Filters` section the `VCG` group is added with
 all the filters of this plugin as well.
 
-## Contributing
+## Contribute
 Paraview allow you to extend it by `Filter`s but also `Reader`s and `Writer`s, 
 as explain here [Paraview/Plugin HowTo](https://www.paraview.org/Wiki/ParaView/Plugin_HowTo).
 Since the actual version of the plugin exports just Paraview's filters, only
