@@ -50,7 +50,7 @@ make
 
 and inside the directory the `libVCG` shared library should be appeared.
 
-Now open Paraview and load the library throught the Plugin Manager
+Now open Paraview and load the library through the Plugin Manager
 (`Tools > Manage Plugin`) by clicking in `Load New...` and selecting the
 shared library. If no errors are occured, the entry `VCG` is shown with status 
 `Loaded` and in the `Filters` section the `VCG` group is added with
@@ -69,7 +69,7 @@ described in that page.
 
 First of all, create a directory over the path `src/filter` with the name of
 the new filter (e.g. `src/filters/NewVCGAlgorithm`) and put there all the
-source code files. As name for the filter class use the form `vcgXXXFilter`
+source code files. As name for the filter class use the convention `vcgXXXFilter`
 (e.g. `vcgNewVCGAlgorithmFilter`) in order to distinguish it from the VTK
 classes.
 
