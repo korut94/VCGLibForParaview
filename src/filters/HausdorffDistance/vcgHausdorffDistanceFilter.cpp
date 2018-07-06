@@ -21,6 +21,7 @@ vtkStandardNewMacro(vcgHausdorffDistanceFilter);
 
 vcgHausdorffDistanceFilter::vcgHausdorffDistanceFilter() {
   SetNumberOfInputPorts(2);
+  SetNumberOfOutputPorts(2);
 }
 
 vcgHausdorffDistanceFilter::~vcgHausdorffDistanceFilter() {}
@@ -38,14 +39,18 @@ int vcgHausdorffDistanceFilter::RequestData(vtkInformation *request,
   
   vtkInformation *inSourceInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *inTargetInfo = inputVector[1]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *outInfoSource = outputVector->GetInformationObject(0);
+  vtkInformation *outInfoTarget = outputVector->GetInformationObject(1);
 
   vtkDataSet *sourceData = vtkDataSet::SafeDownCast(inSourceInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *targetData = vtkDataSet::SafeDownCast(inTargetInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPointSet *output = vtkPointSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet *outputSource = vtkPointSet::SafeDownCast(outInfoSource->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet *outputTarget = vtkPointSet::SafeDownCast(outInfoTarget->Get(vtkDataObject::DATA_OBJECT()));
 
   Mesh source;
   Mesh target;
+  Mesh samplePointMesh;
+  Mesh closestPointMesh;
 
   if (utils::vcgFactory::BuildVCGMeshFromVTKDataSet(source, sourceData) == 0 ||
       utils::vcgFactory::BuildVCGMeshFromVTKDataSet(target, targetData) == 0) {
@@ -55,7 +60,10 @@ int vcgHausdorffDistanceFilter::RequestData(vtkInformation *request,
   tri::UpdateNormal<Mesh>::PerFaceNormalized(target);
 
   HausdorffSampler<Mesh> hs(&target);
-  hs.dist_upper_bound = 1000; // TODO: add property Max Distant
+
+  if (SaveSample) { hs.init(&samplePointMesh, &closestPointMesh); }
+
+  hs.dist_upper_bound = source.bbox.Diag() * DiagonalPercent;
 
   if (SampleVert) {
     tri::SurfaceSampling<Mesh, HausdorffSampler<Mesh>>::VertexUniform(source, hs, NumberOfSamples);
@@ -81,11 +89,27 @@ int vcgHausdorffDistanceFilter::RequestData(vtkInformation *request,
   rmsDistanceFieldData->SetNumberOfComponents(1);
   rmsDistanceFieldData->SetName("RMSDistance");
   rmsDistanceFieldData->InsertNextValue(hs.getRMSDist());
+  
+  if (SaveSample) {
+    tri::UpdateBounding<Mesh>::Box(samplePointMesh);
+    tri::UpdateBounding<Mesh>::Box(closestPointMesh);
 
-  output->DeepCopy(sourceData);
-  output->GetFieldData()->AddArray(distanceRangeFieldData);
-  output->GetFieldData()->AddArray(hausdorffDistanceFieldData);
-  output->GetFieldData()->AddArray(rmsDistanceFieldData);
+    vtkPoints *sourceCloudPoint = vtkPoints::New();
+    vtkPoints *targetCloudPoint = vtkPoints::New();
+
+    utils::vcgFactory::ExtractVTKPointsFromVCGMesh(samplePointMesh, sourceCloudPoint);
+    utils::vcgFactory::ExtractVTKPointsFromVCGMesh(closestPointMesh, targetCloudPoint);
+
+    outputSource->SetPoints(sourceCloudPoint);
+    outputTarget->SetPoints(targetCloudPoint);
+
+    sourceCloudPoint->Delete();
+    targetCloudPoint->Delete();
+  }
+
+  outputSource->GetFieldData()->AddArray(distanceRangeFieldData);
+  outputSource->GetFieldData()->AddArray(hausdorffDistanceFieldData);
+  outputSource->GetFieldData()->AddArray(rmsDistanceFieldData);
 
   return 1;
 }
