@@ -52,8 +52,8 @@ int vcgHausdorffDistanceFilter::RequestData(vtkInformation *request,
   Mesh samplePointMesh;
   Mesh closestPointMesh;
 
-  if (utils::vcgFactory::BuildVCGMeshFromVTKDataSet(source, sourceData) == 0 ||
-      utils::vcgFactory::BuildVCGMeshFromVTKDataSet(target, targetData) == 0) {
+  if (utils::vcgFactory::FromVTKDataSetBuildVCGMesh(source, sourceData) == 0 ||
+      utils::vcgFactory::FromVTKDataSetBuildVCGMesh(target, targetData) == 0) {
     return 0;
   }
 
@@ -97,8 +97,8 @@ int vcgHausdorffDistanceFilter::RequestData(vtkInformation *request,
     vtkPoints *sourceCloudPoint = vtkPoints::New();
     vtkPoints *targetCloudPoint = vtkPoints::New();
 
-    utils::vcgFactory::ExtractVTKPointsFromVCGMesh(samplePointMesh, sourceCloudPoint);
-    utils::vcgFactory::ExtractVTKPointsFromVCGMesh(closestPointMesh, targetCloudPoint);
+    utils::vcgFactory::FromVCGMeshExtractVTKPoints(samplePointMesh, sourceCloudPoint);
+    utils::vcgFactory::FromVCGMeshExtractVTKPoints(closestPointMesh, targetCloudPoint);
 
     outputSource->SetPoints(sourceCloudPoint);
     outputTarget->SetPoints(targetCloudPoint);

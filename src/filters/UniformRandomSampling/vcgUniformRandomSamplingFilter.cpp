@@ -42,7 +42,7 @@ int vcgUniformRandomSamplingFilter::RequestData(vtkInformation *request,
   vtkDataSet *input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPointSet *output = vtkPointSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if (utils::vcgFactory::BuildVCGMeshFromVTKDataSet(mesh, input) == 0) { return 0; }
+  if (utils::vcgFactory::FromVTKDataSetBuildVCGMesh(mesh, input) == 0) { return 0; }
 
   tri::SurfaceSampling<Mesh, tri::TrivialSampler<Mesh>>::SamplingRandomGenerator().initialize(time(0));
 

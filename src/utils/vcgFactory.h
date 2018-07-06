@@ -21,25 +21,25 @@ private:
     "are not triangular proper face. Please consider to apply the Paraview's "
     "filter 'Triangulate' over your mesh and retry.";
 
+public:
+  template <typename MeshType>
+  static int FromVCGMeshExtractVTKPoints(const MeshType &mesh, vtkPoints *points);
+
+  template <typename MeshType>
+  static int FromVTKDataSetBuildVCGMesh(MeshType &mesh, vtkDataSet *data);
+
   // The template parameter is not meaningful for the method itself, it just
   // to make the method a template. Using a common no template method the
   // build fails declaring that there are multiple definition of
   // ExtractVertexesFromDataSet method.
   template <typename MeshType>
-  static int ExtractVCGVertexesFromVTKDataSet(vtkDataSet *data,
+  static int FromVTKDataSetExtractVCGVertexes(vtkDataSet *data,
                                               std::vector<vcg::Point3f> &coords,
                                               std::vector<vcg::Point3i> &ids);
-
-public:
-  template <typename MeshType>
-  static int BuildVCGMeshFromVTKDataSet(MeshType &mesh, vtkDataSet *data);
-
-  template <typename MeshType>
-  static int ExtractVTKPointsFromVCGMesh(const MeshType &mesh, vtkPoints *points);
 };
 
 template <typename MeshType>
-int vcgFactory::ExtractVCGVertexesFromVTKDataSet(
+int vcgFactory::FromVTKDataSetExtractVCGVertexes(
   vtkDataSet *data, 
   std::vector<vcg::Point3f> &coords, 
   std::vector<vcg::Point3i> &ids) {
@@ -97,13 +97,13 @@ int vcgFactory::ExtractVCGVertexesFromVTKDataSet(
 }
 
 template <typename MeshType>
-int vcgFactory::BuildVCGMeshFromVTKDataSet(MeshType &mesh, vtkDataSet *data) {
+int vcgFactory::FromVTKDataSetBuildVCGMesh(MeshType &mesh, vtkDataSet *data) {
   std::vector<vcg::Point3f> coordinateVector;
   std::vector<vcg::Point3i> indexVector;
 
   int exitCode = 1;
 
-  if (ExtractVCGVertexesFromVTKDataSet<MeshType>(data, coordinateVector, indexVector) == 1) {
+  if (FromVTKDataSetExtractVCGVertexes<MeshType>(data, coordinateVector, indexVector) == 1) {
     vcg::tri::BuildMeshFromCoordVectorIndexVector(mesh, coordinateVector, indexVector);
     vcg::tri::Clean<MeshType>::RemoveDuplicateVertex(mesh);
     vcg::tri::Clean<MeshType>::RemoveUnreferencedVertex(mesh);
@@ -115,7 +115,7 @@ int vcgFactory::BuildVCGMeshFromVTKDataSet(MeshType &mesh, vtkDataSet *data) {
 }
 
 template <typename MeshType>
-int vcgFactory::ExtractVTKPointsFromVCGMesh(const MeshType &mesh, vtkPoints *points) {
+int vcgFactory::FromVCGMeshExtractVTKPoints(const MeshType &mesh, vtkPoints *points) {
     for (auto &&vertex : mesh.vert) {
       auto point = vertex.P();
       points->InsertNextPoint(point.X(), point.Y(), point.Z());
