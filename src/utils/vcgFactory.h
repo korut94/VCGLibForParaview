@@ -6,6 +6,7 @@
 #include "vtkCellIterator.h"
 #include "vtkDataSet.h"
 #include "vtkOutputWindow.h"
+#include "vtkPoints.h"
 
 #include "vcg/complex/algorithms/create/platonic.h"
 
@@ -25,17 +26,20 @@ private:
   // build fails declaring that there are multiple definition of
   // ExtractVertexesFromDataSet method.
   template <typename MeshType>
-  static int ExtractVertexesFromDataSet(vtkDataSet *data,
-                                        std::vector<vcg::Point3f> &coords,
-                                        std::vector<vcg::Point3i> &ids);
+  static int ExtractVCGVertexesFromVTKDataSet(vtkDataSet *data,
+                                              std::vector<vcg::Point3f> &coords,
+                                              std::vector<vcg::Point3i> &ids);
 
 public:
   template <typename MeshType>
   static int BuildVCGMeshFromVTKDataSet(MeshType &mesh, vtkDataSet *data);
+
+  template <typename MeshType>
+  static int ExtractVTKPointsFromVCGMesh(const MeshType &mesh, vtkPoints *points);
 };
 
 template <typename MeshType>
-int vcgFactory::ExtractVertexesFromDataSet(
+int vcgFactory::ExtractVCGVertexesFromVTKDataSet(
   vtkDataSet *data, 
   std::vector<vcg::Point3f> &coords, 
   std::vector<vcg::Point3i> &ids) {
@@ -99,7 +103,7 @@ int vcgFactory::BuildVCGMeshFromVTKDataSet(MeshType &mesh, vtkDataSet *data) {
 
   int exitCode = 1;
 
-  if (ExtractVertexesFromDataSet<MeshType>(data, coordinateVector, indexVector) == 1) {
+  if (ExtractVCGVertexesFromVTKDataSet<MeshType>(data, coordinateVector, indexVector) == 1) {
     vcg::tri::BuildMeshFromCoordVectorIndexVector(mesh, coordinateVector, indexVector);
     vcg::tri::Clean<MeshType>::RemoveDuplicateVertex(mesh);
     vcg::tri::Clean<MeshType>::RemoveUnreferencedVertex(mesh);
@@ -108,6 +112,16 @@ int vcgFactory::BuildVCGMeshFromVTKDataSet(MeshType &mesh, vtkDataSet *data) {
   }
 
   return exitCode;
+}
+
+template <typename MeshType>
+int vcgFactory::ExtractVTKPointsFromVCGMesh(const MeshType &mesh, vtkPoints *points) {
+    for (auto &&vertex : mesh.vert) {
+      auto point = vertex.P();
+      points->InsertNextPoint(point.X(), point.Y(), point.Z());
+    }
+
+    return 1;
 }
 } // namespace utils 
 
