@@ -21,7 +21,8 @@ class VCGDefaultVertex : public vcg::Vertex<
   vcg::vertex::Coord3f,
   vcg::vertex::Normal3f,
   vcg::vertex::Color4b,
-  vcg::vertex::BitFlags> {};
+  vcg::vertex::BitFlags,
+  vcg::vertex::Qualityf> {};
 
 class VCGDefaultFace : public vcg::Face<
   VCGDefaultUsedTypes,
