@@ -2,11 +2,12 @@
 VCGLibForParaview is an university project for the Scientific and Large Data
 Visualization course of the University of Pisa.
 
-The main goal is bringing the VGC functionalities inside Paraview but also
-providing a set of utilities to make really confortable moving between the VCG 
-world and the VTK one or viceversa. The result is a Paraview plugin with the
-many advanced VCG algorithms encapsulated in single place and completely
-available through the pipeline-based framework. 
+The main goal is bringing the VCG (http://vcg.isti.cnr.it/vcglib/)
+functionalities inside Paraview but also providing a set of utilities to make 
+really confortable moving between the VCG world and the VTK one or viceversa.
+The result is a Paraview plugin with the many advanced VCG algorithms
+encapsulated in single place and completely available through the
+pipeline-based framework. 
 
 ## Installation
 Once downloaded the source code, go into the directory
