@@ -58,6 +58,7 @@ int vcgUniformRandomSamplingFilter::RequestData(vtkInformation *request,
   }
 
   output->SetPoints(samplingSet);
+  samplingSet->Delete();
 
   return 1;
 }
