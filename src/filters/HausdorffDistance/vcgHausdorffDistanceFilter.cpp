@@ -11,6 +11,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkSmartPointer.h"
 
@@ -18,6 +19,26 @@
 #include "vcg/complex/algorithms/point_sampling.h"
 
 vtkStandardNewMacro(vcgHausdorffDistanceFilter);
+
+template <typename TypeMesh>
+void GetSamplePointsWithDistances(const TypeMesh &mesh, vtkPointSet *pointSet) {
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+
+  vtkSmartPointer<vtkDoubleArray> distances = vtkSmartPointer<vtkDoubleArray>::New();
+  distances->SetNumberOfComponents(1);
+  distances->SetName("Distance");
+  
+  // Extract the vcg sample points coordinates and distances from target
+  for (auto &&vertex : mesh.vert) {
+    auto point = vertex.P();
+    points->InsertNextPoint(point.X(), point.Y(), point.Z()); // coordinate
+    distances->InsertNextValue(vertex.Q()); // distance
+  }
+
+  pointSet->SetPoints(points);
+  pointSet->GetPointData()->SetScalars(distances);
+}
+
 
 vcgHausdorffDistanceFilter::vcgHausdorffDistanceFilter() {
   SetNumberOfInputPorts(2);
@@ -94,17 +115,8 @@ int vcgHausdorffDistanceFilter::RequestData(vtkInformation *request,
     tri::UpdateBounding<Mesh>::Box(samplePointMesh);
     tri::UpdateBounding<Mesh>::Box(closestPointMesh);
 
-    vtkPoints *sourceCloudPoint = vtkPoints::New();
-    vtkPoints *targetCloudPoint = vtkPoints::New();
-
-    utils::vcgFactory::FromVCGMeshExtractVTKPoints(samplePointMesh, sourceCloudPoint);
-    utils::vcgFactory::FromVCGMeshExtractVTKPoints(closestPointMesh, targetCloudPoint);
-
-    outputSource->SetPoints(sourceCloudPoint);
-    outputTarget->SetPoints(targetCloudPoint);
-
-    sourceCloudPoint->Delete();
-    targetCloudPoint->Delete();
+    GetSamplePointsWithDistances(samplePointMesh, outputSource);
+    GetSamplePointsWithDistances(closestPointMesh, outputTarget);
   }
 
   outputSource->GetFieldData()->AddArray(distanceRangeFieldData);
