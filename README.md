@@ -87,7 +87,7 @@ surface
 
 both of them contain those points made by the sampler to the computation
 of the Hausdorff Distance. Moreover `PointCloudSource` keeps the output
-fields data so them can be propagate over the pipeline.
+fields data so they can be propagated over the pipeline.
 
 #### Inputs
 * **Source Data**
@@ -97,19 +97,24 @@ fields data so them can be propagate over the pipeline.
   * Type: `vtkDataSet`
   * Description: the `target` mesh
 
-The filter works with surfing over **triangular** faces, so in order
+The filter works surfing over **triangular** faces, so in order
 to apply this filter the Paraview's `Triangulate` filter has to be
 considered if your mesh may be composed by different types of faces.
 
 #### Outputs
-`DistanceRange : [double, double, double]`
-
-array where: the first item is set the distance of the closest point of `source` to `target`,
-the second one the mean distance from `source` to `target` and the
-third one is the distance of the farthest point of `rource`
-
-* `HausdorffDistance : [double]`
-* `RMSDistance : [double]`
+* **DistanceRange**
+  * Type: `double[3]`
+  * Description: array where the first item is the minimum distance
+  from `source` to `target`, the second item is the mean distance from 
+  `source` to `target` and the third one is the maximum distance
+  from `source` to `target` (equivalent to **HausdorffDistance**).
+* **HausdorffDistance**
+  * Type: `double`
+  * Description: the value of the Hausdorff Distance computed from the 
+  `source` mesh to `target` mesh.
+* **RMSDistance**
+  * Type: `double`
+  * Description: to ask
 
 #### Properties
 * **Number of Samples**
@@ -124,13 +129,25 @@ third one is the distance of the farthest point of `rource`
   * Description: fraction of the `source` bounding box diagonal length that a point of
   the `target` surface can be far at most from a point of the `source` surface to be
   consider as valid point during the Hausdorff Distant computation.
-* `Sample Edge`
-* `Sample Faux Edge`
-* `Sample Vert` 
-* `Save Sample`
+* **Sample Edge**
+  * Type: `bool`
+  * Default: `false`
+  * Description: run the sampling process also over the `source`'s edges.
+* **Sample Faux Edge**
+  * Type: `bool`
+  * Default: `false`
+  * Description: to ask
+* **Sample Vert**
+  * Type: `bool`
+  * Default: `false`
+  * Description: run the sampling process also over the `source`'s vertexes.
+* **Save Sample**
+  * Type: `bool`
+  * Default: `true`
+  * Description: store the sample points generated over both the `source` and `target`
+  surfaces into the `PointCloudSource` and the `PointCloudTarget` respectively.
 
 ### Uniform Random Sampling
-
 
 ## Contributing
 Paraview allow you to extend it by `Filter`s but also `Reader`s and `Writer`s, 
