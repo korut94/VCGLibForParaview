@@ -9,7 +9,15 @@ The result is a Paraview plugin with the many advanced VCG algorithms
 encapsulated in single place and completely available through the
 pipeline-based framework. 
 
-## Installation
+## Table of contents
+* [Install](#install)
+* [Contents](#contents)
+  * [Uniform Random Sampling](#uniform-random-sampling)
+  * [Hausdorff Distance](#hausdorff-distance)
+* [How to contribute](#how-to-contribute)
+  * [Filters](#filters)
+
+## Install
 Once downloaded the source code, go into the directory
 
 ```
@@ -57,7 +65,17 @@ shared library. If no errors are occured, the entry `VCG` is shown with status
 `Loaded` and in the `Filters` section the `VCG` group is added with
 all the filters of this plugin as well.
 
-## Contribute
+## Contents
+Since the actual small numbers of the functionalities available through the
+puglin, the relative documentation about them is exposed here waiting future
+contriubutes to move all into a wiki's page.
+
+### Uniform Random Sampling
+
+### Hausdorff Distance
+
+
+## How to contribute
 Paraview allow you to extend it by `Filter`s but also `Reader`s and `Writer`s, 
 as explain here [Paraview/Plugin HowTo](https://www.paraview.org/Wiki/ParaView/Plugin_HowTo).
 Since the actual version of the plugin exports just Paraview's filters, only
