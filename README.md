@@ -17,6 +17,9 @@ pipeline-based framework.
     * [Outputs](#outputs)
     * [Properties](#properties)
   * [Uniform Random Sampling](#uniform-random-sampling)
+    * [Inputs](#inputs)
+    * [Outputs](#outputs)
+    * [Properties](#properties)
 * [Contributing](#contributing)
   * [Filters](#filters)
 * [License](#license)
@@ -114,7 +117,7 @@ considered if your mesh may be composed by different types of faces.
   `source` mesh to `target` mesh.
 * **RMSDistance**
   * Type: `double`
-  * Description: to ask
+  * Description: Route Mean Square Error value.
 
 #### Properties
 * **Diagonal Percent**
@@ -133,10 +136,6 @@ considered if your mesh may be composed by different types of faces.
   * Type: `bool`
   * Default: `false`
   * Description: run the sampling process also over the `source`'s edges.
-* **Sample Faux Edge**
-  * Type: `bool`
-  * Default: `false`
-  * Description: to ask
 * **Sample Vert**
   * Type: `bool`
   * Default: `false`
@@ -148,6 +147,12 @@ considered if your mesh may be composed by different types of faces.
   surfaces into the `PointCloudSource` and the `PointCloudTarget` respectively.
 
 ### Uniform Random Sampling
+
+#### Inputs
+
+#### Outputs
+
+#### Properties
 
 ## Contributing
 Paraview allow you to extend it by `Filter`s but also `Reader`s and `Writer`s, 
