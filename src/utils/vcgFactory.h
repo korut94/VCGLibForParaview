@@ -1,13 +1,17 @@
 // Copyright 2018 Andrea Mantovani
 
+// https://github.com/korut94/VCGLibForParaview/tree/master/src/utils
+
 #ifndef UTILSVCGFACTORY_H
 #define UTILSVCGFACTORY_H
 
 #include "vtkCellIterator.h"
+#include "vtkCellArray.h"
 #include "vtkDataSet.h"
+#include "vtkPolyData.h"
+#include "vtkPolygon.h"
 #include "vtkOutputWindow.h"
 #include "vtkPoints.h"
-
 #include "vcg/complex/algorithms/create/platonic.h"
 
 namespace utils
@@ -26,6 +30,12 @@ public:
   static int FromVCGMeshExtractVTKPoints(const MeshType &mesh, vtkPoints *points);
 
   template <typename MeshType>
+  static int FromVCGMeshExtractFacesVertices(const MeshType &mesh, int* faces, double *vertices);
+
+  template <typename MeshType>
+  static int FromVCGMeshBuildVTKPolyData(const MeshType &mesh, vtkPolyData *polydata);
+
+  template <typename MeshType>
   static int FromVTKDataSetBuildVCGMesh(MeshType &mesh, vtkDataSet *data);
 
   // The template parameter is not meaningful for the method itself, it just
@@ -40,8 +50,8 @@ public:
 
 template <typename MeshType>
 int vcgFactory::FromVTKDataSetExtractVCGVertexes(
-  vtkDataSet *data, 
-  std::vector<vcg::Point3f> &coords, 
+  vtkDataSet *data,
+  std::vector<vcg::Point3f> &coords,
   std::vector<vcg::Point3i> &ids) {
   vtkOutputWindow *outputWindow = vtkOutputWindow::GetInstance();
 
@@ -123,6 +133,67 @@ int vcgFactory::FromVCGMeshExtractVTKPoints(const MeshType &mesh, vtkPoints *poi
 
     return 1;
 }
-} // namespace utils 
+
+template <typename MeshType>
+int vcgFactory::FromVCGMeshExtractFacesVertices(const MeshType &mesh, int* faces, double *vertices) {
+	// Only works with triangular meshes only (no face with more than 3 vertices)
+
+	int i = 0;
+	vcg::SimpleTempData<typename const MeshType::VertContainer, int> indices(mesh.vert);
+	for (auto &&vertex : mesh.vert) {
+		indices[vertex] = i++;
+	}
+	i = 0;
+	for (auto &&f : mesh.face) {
+		for (int k = 0; k < f.VN(); ++k)
+			faces[3 * i + k] = indices[f.cV(k)];
+		i++;
+	}
+
+	i = 0;
+	for (auto &&vertex : mesh.vert) {
+		auto point = vertex.P();
+		vertices[3 * i] = point.X();
+		vertices[3 * i + 1] = point.Y();
+		vertices[3 * i + 2] = point.Z();
+		i++;
+	}
+
+	return 1;
+}
+
+template <typename MeshType>
+int vcgFactory::FromVCGMeshBuildVTKPolyData(const MeshType &mesh, vtkPolyData *polydata) {
+
+  // Only for triangular polygons
+
+	vtkSmartPointer<vtkCellArray> polygons = vtkSmartPointer<vtkCellArray>::New();
+	vtkSmartPointer<vtkPolygon> polygon = vtkSmartPointer<vtkPolygon>::New();
+	vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+
+	int* faces = new int[3 * mesh.fn];
+	double *vertices = new double[3 * mesh.vn];
+	int res = FromVCGMeshExtractFacesVertices(mesh, faces, vertices);
+
+	for (int i = 0; i < mesh.vn; i++)
+		points->InsertNextPoint(vertices[3 * i], vertices[3 * i + 1], vertices[3 * i + 2]);
+
+	polygon->GetPointIds()->SetNumberOfIds(3);
+	for (int i = 0; i < mesh.fn; i++) {
+		polygon->GetPointIds()->SetId(0, faces[3 * i]);
+		polygon->GetPointIds()->SetId(1, faces[3 * i + 1]);
+		polygon->GetPointIds()->SetId(2, faces[3 * i + 2]);
+		polygons->InsertNextCell(polygon);
+	}
+
+	polydata->SetPoints(points);
+	polydata->SetPolys(polygons);
+
+	delete faces;
+	delete vertices;
+
+	return 1;
+}
+} // namespace utils
 
 #endif // UTILSVCGFACTORY_H
